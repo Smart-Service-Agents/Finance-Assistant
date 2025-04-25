@@ -17,7 +17,7 @@ class FinanceCoach:
         self.dataset_path = os.path.join(self.BASE_DIR, "chatbot", "dataset.json")
 
 
-        self.GEMINI = ""
+        self.GEMINI = "AIzaSyDMRQy-MFTak4i6nzabdBTiD16nX-efm4w"
         self.tokenizer = None
         self.model = None
         self.generator = None
