@@ -25,7 +25,9 @@ SECRET_KEY = 'django-insecure-%j@e33n5ohzvdsx_hp#2fmwcavyqq@z7b62sl@=b1hd4#!#j(+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "https://finance-assistant-bot-kqga.onrender.com",
+]
 
 
 # Application definition
