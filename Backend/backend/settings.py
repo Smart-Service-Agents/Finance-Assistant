@@ -27,6 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     "https://finance-assistant-bot-kqga.onrender.com",
+    "finance-assistant-bot-kqga.onrender.com",
 ]
 
 
