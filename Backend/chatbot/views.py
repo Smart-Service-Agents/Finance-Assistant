@@ -81,11 +81,11 @@ class FinanceCoach:
 
 
 
+coach = FinanceCoach()
 
 @api_view(['POST'])
 def get_messages(request):
     """Handles chatbot message requests"""
-    llm = FinanceCoach()
     try:
         data = request.data
         question = data.get("text", "").strip()
@@ -93,8 +93,9 @@ def get_messages(request):
         if not question:
             return Response({"error": "No question provided"}, status=400)
 
-        response = llm.answer_question(question)
+        response = coach.answer_question(question)
         return Response({"text": response["answer"], "video": response["video"]})
 
     except Exception as e:
         return Response({"error": str(e)}, status=500)
+
