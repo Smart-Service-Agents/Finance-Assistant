@@ -242,7 +242,10 @@ const App = () => {
     }
     try{
       const curr_chat = chats[activeChatIndex];
-      console.log(chats);
+      
+      console.log("Upload:", chats);
+      console.log("Upload:", curr_chat);
+
       const curr_messages = curr_chat['messages'];
       
       const length = curr_messages.length;
@@ -266,34 +269,51 @@ const App = () => {
       });
 
       if (response.ok) console.log("Messages upload successful");
-      const data = await response.json();
-
-      console.log(data);
-
     } catch (err) {
       console.error('Error while uploading chats to Database:', err);
     }
   };
 
-  const loadMsgs = async (currUser) => {
-    try{
-      const user = currUser;
-      
-      const response = await fetch('http://127.0.0.1:8000/api/chatbot/load/', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          uid:user,
-          key: 'rey-master-eo'
-        })
-      });
+const loadMsgs = async (currUser) => {
+  try {
+    const response = await fetch('http://127.0.0.1:8000/api/chatbot/load/', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ uid: currUser, key: 'rey-master-eo' }),
+    });
 
-      const data = await response.json();
-      console.log(data);
-    } catch (err){
-      console.error('Error while loading chats:', err);
+    if (!response.ok) {
+      console.error('Failed to load:', await response.text());
+      return;
     }
+
+    const { conversations } = await response.json();
+
+    const chatMap = new Map();
+    for (const conversation of conversations){
+      const chat = conversation['chat_id']; 
+      
+      if (!chatMap.has(chat)){
+        chatMap.set(chat, {title: chat, messages: [] });
+      }
+
+      const chatObj = chatMap.get(chat);
+      chatObj.messages.push({from:'user', text: conversation['question']});
+      chatObj.messages.push({from:'bot', text: conversation['answer'], video: conversation['video'], showVideo: true})
+    }
+
+    const loadedChats = Array.from(chatMap.values());
+    setChats(loadedChats);
+
+    if (loadedChats.length > 0){
+      setActiveChatIndex(0);
+      setMessages(loadedChats[0].messages);
+    }
+  } catch (err) {
+    console.error('Error while loading chats:', err);
   }
+};
+
 
   return (
     <div className="d-flex vh-100" style={{ backgroundColor: '#0b1a2b', color: 'white', position: 'relative' }}>

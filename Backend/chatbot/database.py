@@ -155,7 +155,7 @@ class Database:
                 for row in rows
             ]
 
-            return {'status': 200, 'conversation': conversation}
+            return {'status': 200, 'conversations': conversation}
         except Exception as e:
             return {'error': str(e), 'status': 500}
         
