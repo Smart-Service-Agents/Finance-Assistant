@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,14 +21,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-%j@e33n5ohzvdsx_hp#2fmwcavyqq@z7b62sl@=b1hd4#!#j(+'
+SECRET_KEY = os.getenv("django-fc-secretkey")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    "https://finance-assistant-bot-kqga.onrender.com",
-    "finance-assistant-bot-kqga.onrender.com",
+    # "https://finance-assistant-bot-kqga.onrender.com",
+    # "finance-assistant-bot-kqga.onrender.com",
+    os.getenv("django-host")
 ]
 
 
@@ -46,10 +48,10 @@ INSTALLED_APPS = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "http://localhost:3000",
-    "https://hotel-finance-gpt.onrender.com",
+    os.getenv("allowed-origin"),
+    # "http://127.0.0.1:5173", allowed-origin-vite
+    # "http://localhost:3000", allowed-origin
+    # "https://hotel-finance-gpt.onrender.com",
 ]
 
 CORS_ALLOW_METHODS = [

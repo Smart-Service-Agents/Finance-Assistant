@@ -1,126 +1,161 @@
 from dotenv import load_dotenv
-import os, json, pyodbc, hashlib
-
+import os
+import psycopg2
+import hashlib
 
 class Database:
     def __init__(self):
-        self.question = None
-        self.answer = None
-
-        self.userid = None
-
-        self.request = None
-
         load_dotenv()
 
-    def hash_password(self, password):
+    def hash_password(self, password: str) -> str:
+        """
+        Create a SHA-256 hash of the password.
+        """
         return hashlib.sha256(password.encode()).hexdigest()
     
-    def save_user(self, user_id, password):
-        self.userid = user_id
+    def get_db_connection(self):
+        """
+        Establish a connection to Postgres using psycopg2 and env vars.
+        """
+        return psycopg2.connect(
+            host=os.getenv("DB_HOST"),
+            dbname=os.getenv("DB_NAME"),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASSWORD"),
+            port=os.getenv("DB_PORT", "5432"),
+            sslmode=os.getenv("DB_SSLMODE", "require")
+        )
+
+    def authenticate(self, key) -> dict:
+        """
+        Simple API key check for saving queries.
+        """
+        api_key = key
+        if not api_key or api_key != os.getenv('MASTER_KEY'):
+            return {'error': 'Forbidden: Invalid API Key', 'status': 403}
+        return {'status': 200}
+
+    def save_user(self, user_id: str, password: str, key) -> dict:
+        """
+        Register a new user; returns status dict.
+        """
         password_hash = self.hash_password(password)
 
+        auth = self.authenticate(key)
+
+        if auth['status'] != 200:
+            return auth
+
         try:
-            conn = self.get_db_connection()
-            cursor = conn.cursor()
-
-            cursor.execute("SELECT * FROM users WHERE user_id = ?", (user_id,))
-            if cursor.fetchone():
-                return {'error': 'User already exists', 'status': 409}
-
-            cursor.execute(
-                "INSERT INTO users (user_id, password_hash) VALUES (?, ?)",
-                (user_id, password_hash)
-            )
-            conn.commit()
-            cursor.close()
-            conn.close()
-            return {'status': 201, 'message': 'User created successfully'}
+            with self.get_db_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        "SELECT 1 FROM users WHERE user_id = %s", 
+                        (user_id,)
+                    )
+                    if cursor.fetchone():
+                        return {'error': 'User already exists', 'status': 409}
+                    cursor.execute(
+                        "INSERT INTO users (user_id, password_hash, created_at) VALUES (%s, %s, CURRENT_TIMESTAMP)",
+                        (user_id, password_hash)
+                    )
+                    
+            return {'status': 200, 'message': 'User created successfully'}
 
         except Exception as e:
             return {'error': 'Error creating user', 'details': str(e), 'status': 500}
-        
 
-    def login_user(self, user_id, password):
+    def login_user(self, user_id: str, password: str, key) -> dict:
+        """
+        Authenticate existing user; returns status dict.
+        """
         password_hash = self.hash_password(password)
 
+        auth = self.authenticate(key)
+        
+        if auth['status'] != 200:
+            return auth
+
         try:
-            conn = self.get_db_connection()
-            cursor = conn.cursor()
+            result = None
+            with self.get_db_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                    "SELECT password_hash FROM users WHERE user_id = %s",
+                    (user_id,)
+                    )
+                    result = cursor.fetchone()
 
-            cursor.execute("SELECT password_hash FROM users WHERE user_id = ?", (user_id,))
-            result = cursor.fetchone()
-
-            cursor.close()
-            conn.close()
-
-            if result is None:
+            if not result:
                 return {'error': 'User not found', 'status': 404}
 
             stored_hash = result[0]
             if stored_hash == password_hash:
-                return {'status': 200, 'message': 'Login successful'}
+                return {'status': 200, 'message': 'Login successful', 'user': user_id}
             else:
                 return {'error': 'Invalid credentials', 'status': 401}
 
         except Exception as e:
             return {'error': 'Error during login', 'details': str(e), 'status': 500}
 
-
-    def save_query(self, request, question, answer):
-        self.question = question
-        self.answer = answer
-
-        self.request = request
-
-        self.upload_query()
-
-    def get_db_connection(self):
-        conn = pyodbc.connect(
-            f"DRIVER=ODBC Driver 18 for SQL Server;"
-            f"SERVER={os.getenv('DB_HOST')};"
-            f"DATABASE={os.getenv('DB_NAME')};"
-            f"UID={os.getenv('DB_USER')};"
-            f"PWD={os.getenv('DB_PASSWORD')};"
-            "TrustServerCertificate=yes;"
-        )
-        return conn
-    
-    def authenticate(self, request):
-        api_key = request.headers.get('Master-Key')
-        if not api_key or api_key != os.getenv('MASTER_KEY'):
-            return {'error': 'Forbidden: Invalid API Key', 'status': 403}
-        else:
-            return {'status': 200}
-
-
-    def upload_query(self):
-        auth_response = self.authenticate(self.request)
-        if auth_response['status'] != 200:
-            return auth_response['error']
+    def upload_messages(self, user, question, answer, video, chat_id, key) -> dict:
+        """
+        Insert into questions table if API key valid.
+        """
+        
+        auth = self.authenticate(key)
+        if auth['status'] != 200:
+            return auth
         
         try:
-            conn = self.get_db_connection()
-            cursor = conn.cursor()
-
-            query = """
-                INSERT INTO questions (
-                    user_id, question, answer,
-                    created_at, modified_at
-                )
-                VALUES (?, ?, ?, GETDATE(), GETDATE())
-            """
-
-            values = (
-                self.userid, self.question, self.answer
-            )
-
-            cursor.execute(query, values)
-            conn.commit()
+            with self.get_db_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        """
+                        INSERT INTO questions (
+                            user_id, question, answer, video, chat_id, created_at, modified_at
+                        ) VALUES (%s, %s, %s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                        ON CONFLICT (question) DO UPDATE 
+                          SET answer = EXCLUDED.answer, modified_at = CURRENT_TIMESTAMP
+                        """,
+                        (user, question, answer, video, chat_id)
+                    )
             
-            cursor.close()
-            conn.close()
             return {'status': 200, 'message': 'Query uploaded successfully'}
 
         except Exception as e:
-            return {'error': 'Internal Server Error', 'details': str(e), 'status': 500}
+            return {'error': 'Error uploading query', 'details': str(e), 'status': 500}
+
+    def get_messages(self, user: str, key: str) -> dict:
+        """
+        Retrieve all Q&A pairs for a given user and conversation.
+        Returns a list of { 'chat': chat_id, 'question': ..., 'answer': ..., 'video': ... }.
+        """
+        
+        auth = self.authenticate(key)
+        if auth['status'] != 200:
+            return auth
+        
+        try:
+            with self.get_db_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        """
+                        SELECT question, answer, video, chat_id 
+                        FROM questions 
+                        WHERE user_id = %s 
+                        ORDER BY created_at
+                        """,
+                        (user,)
+                    )
+                    rows = cursor.fetchall()
+            
+            conversation = [
+                {'question': row[0], 'answer': row[1], 'video': row[2], 'chat_id': row[3]}
+                for row in rows
+            ]
+
+            return {'status': 200, 'conversation': conversation}
+        except Exception as e:
+            return {'error': str(e), 'status': 500}
+        
