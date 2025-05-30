@@ -125,6 +125,29 @@ class Database:
 
         except Exception as e:
             return {'error': 'Error uploading query', 'details': str(e), 'status': 500}
+        
+    def delete_messages(self, user: str, chat: str, key: str) -> dict:
+        """
+        Deletes a chat
+        """
+        auth = self.authenticate(key)
+        if auth['status'] != 200:
+            return auth
+        
+        try:
+            with self.get_db_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        """
+                        DELETE 
+                        FROM questions
+                        WHERE chat_id = %s AND user_id = %s
+                        """,
+                        (chat, user)
+                    )
+            return {'message': 'succesfully deleted', 'status': 200}
+        except Exception as e:
+            return {'error': str(e), 'status': 500}
 
     def get_messages(self, user: str, key: str) -> dict:
         """
@@ -158,4 +181,3 @@ class Database:
             return {'status': 200, 'conversations': conversation}
         except Exception as e:
             return {'error': str(e), 'status': 500}
-        

@@ -83,3 +83,18 @@ def retrieve_messages(request):
         return Response(response)
     except Exception as e:
         return Response({"error": str(e)}, status=500)
+    
+@api_view(['POST'])
+def delete_chat(request):
+    """Deletes a chat in the datbase"""
+    try:
+        data = request.data
+        user_id = data.get("uid")
+        chat = data.get("chat")
+        master = data.get("key")
+
+        response = db.delete_messages(user_id, chat, master)
+
+        return Response(response)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)

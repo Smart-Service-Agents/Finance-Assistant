@@ -179,11 +179,17 @@ const App = () => {
   };
 
   const deleteChat = (index) => {
+    const chatid = chats[index]['title'] 
+
     const updatedChats = chats.filter((_, i) => i !== index);
     const newIndex = updatedChats.length ? 0 : null;
     setChats(updatedChats);
     setActiveChatIndex(newIndex);
     setMessages(updatedChats[newIndex]?.messages || []);
+
+    if (!currentUser)
+      return;
+    deleteChatDB(currentUser, chatid)
   };
 
   const createNewConversation = () => {
@@ -275,45 +281,62 @@ const App = () => {
     }
   };
 
-const loadMsgs = async (currUser) => {
-  try {
-    const response = await fetch('http://127.0.0.1:8000/api/chatbot/load/', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ uid: currUser, key: 'rey-master-eo' }),
-    });
+  const loadMsgs = async (currUser) => {
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/chatbot/load/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ uid: currUser, key: 'rey-master-eo' }),
+      });
 
-    if (!response.ok) {
-      console.error('Failed to load:', await response.text());
-      return;
-    }
-
-    const { conversations } = await response.json();
-
-    const chatMap = new Map();
-    for (const conversation of conversations){
-      const chat = conversation['chat_id']; 
-      
-      if (!chatMap.has(chat)){
-        chatMap.set(chat, {title: chat, messages: [] });
+      if (!response.ok) {
+        console.error('Failed to load:', await response.text());
+        return;
       }
 
-      const chatObj = chatMap.get(chat);
-      chatObj.messages.push({from:'user', text: conversation['question']});
-      chatObj.messages.push({from:'bot', text: conversation['answer'], video: conversation['video'], showVideo: true})
-    }
+      const { conversations } = await response.json();
 
-    const loadedChats = Array.from(chatMap.values());
-    setChats(loadedChats);
+      const chatMap = new Map();
+      for (const conversation of conversations){
+        const chat = conversation['chat_id']; 
 
-    if (loadedChats.length > 0){
-      setActiveChatIndex(0);
-      setMessages(loadedChats[0].messages);
+        if (!chatMap.has(chat)){
+          chatMap.set(chat, {title: chat, messages: [] });
+        }
+
+        const chatObj = chatMap.get(chat);
+        chatObj.messages.push({from:'user', text: conversation['question']});
+        chatObj.messages.push({from:'bot', text: conversation['answer'], video: conversation['video'], showVideo: true})
+      }
+
+      const loadedChats = Array.from(chatMap.values());
+      setChats(loadedChats);
+
+      if (loadedChats.length > 0){
+        setActiveChatIndex(0);
+        setMessages(loadedChats[0].messages);
+      }
+    } catch (err) {
+      console.error('Error while loading chats:', err);
     }
-  } catch (err) {
-    console.error('Error while loading chats:', err);
-  }
-};
+  };
+
+  const deleteChatDB = async (currUser, chatid) => {
+    try{
+      const response = await fetch("http://127.0.0.1:8000/api/chatbot/delete-chat/", {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ uid: currUser, chat: chatid, key: 'rey-master-eo'})
+      });
+
+      if (!response.ok) {
+        console.error('Failed to load:', await response.text());
+        return;
+      }
+    } catch (err){
+      console.err('Error while deleting chat from database:', err);
+    }
+  };
 
 
 return (
