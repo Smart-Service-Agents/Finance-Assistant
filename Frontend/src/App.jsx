@@ -163,6 +163,7 @@ const App = () => {
       await typeBotMessage(data.text, embedUrl);
     } catch (error) {
       console.error('Error fetching bot response:', error);
+      setIsTyping(false);
       setMessages((prev) => [
         ...prev,
         { from: 'bot', text: 'The backend can not be reached as of now, please try again later.' },
