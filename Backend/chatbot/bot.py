@@ -74,7 +74,7 @@ class FinanceCoach:
         result = self.generator(prompt, max_length=100)
         chunk = result[0]['generated_text']
 
-        prompt = f"Using the following transcript excerpts, answer the question: {question}\n\n {chunk}"
+        prompt = f"You are an expert hotel finance analyst, analyse the question: {question}\n\n and form a response from this chunk from your database: {chunk}"
 
         answer = self.generate_prompt(prompt)
 
