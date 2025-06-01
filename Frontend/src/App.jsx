@@ -50,40 +50,23 @@ const App = () => {
 
   const typeBotMessage = (text, embedUrl) => {
     return new Promise((resolve) => {
-        const words = text.split(' ');
-        let currentText = '';
-        let index = 0;
+      const words = text.split(' ');
+      let currentText = '';
+      let index = 0;
 
-        const interval = setInterval(() => {
-          if (index >= words.length) {
-            clearInterval(interval);
-            setChats((prev) => {
-              const updatedChats = [...prev];
-              const currentMessages = [...updatedChats[activeChatIndex].messages];
-              currentMessages[currentMessages.length - 1].text = currentText;
-              currentMessages[currentMessages.length - 1].showVideo = true;
-              updatedChats[activeChatIndex].messages = currentMessages;
-              return updatedChats;
-            });
-            setMessages((prev) => {
-              const updated = [...prev];
-              updated[updated.length - 1].text = currentText;
-              updated[updated.length - 1].showVideo = true;
-              return updated;
-            });
-            setIsTyping(false);
-            return;
-          }
-        
+      setIsTyping(false);
+      
+      const interval = setInterval(() => {
+        // Build up the text until we finish every word
+        if (index < words.length) {
           currentText += (index > 0 ? ' ' : '') + words[index];
           index++;
-        
+
           setMessages((prev) => {
             const updated = [...prev];
             updated[updated.length - 1].text = currentText;
             return updated;
           });
-        
           setChats((prev) => {
             const updatedChats = [...prev];
             const currentMessages = [...updatedChats[activeChatIndex].messages];
@@ -92,14 +75,25 @@ const App = () => {
             return updatedChats;
           });
 
-          if (index == words.length){
+          if (index === words.length) {
             clearInterval(interval);
+            setChats((prev) => {
+              const updatedChats = [...prev];
+              const currentMessages = [...updatedChats[activeChatIndex].messages];
+              currentMessages[currentMessages.length - 1].showVideo = true;
+              updatedChats[activeChatIndex].messages = currentMessages;
+              return updatedChats;
+            });
+            setMessages((prev) => {
+              const updated = [...prev];
+              updated[updated.length - 1].showVideo = true;
+              return updated;
+            });
             resolve();
           }
-
-        }, 150);
-      }
-    )
+        }
+      }, 150);
+    });
   };
 
   const sendMessage = async () => {
