@@ -139,6 +139,7 @@ const App = () => {
     const message = process.env.REACT_APP_API_MESSAGES_PATH;
     
     try {
+      console.log(`Trying to reach the backend at ${base}`);
       const response = await fetch(`${base}${message}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -203,6 +204,7 @@ const App = () => {
     const signup = process.env.REACT_APP_API_SIGNUP_PATH;
 
     try {
+      console.log(`Trying to reach the backend at ${base}`);
       const response = await fetch(`${base}${signup}`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ uid: username, pass: password, key: `${process.env.REACT_APP_API_MASTER_KEY}` })
@@ -226,6 +228,7 @@ const App = () => {
     const login = process.env.REACT_APP_API_LOGIN_PATH;
 
     try {
+      console.log(`Trying to reach the backend at ${base}`);
       const response = await fetch(`${base}${login}`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ uid: username, pass: password, key: `${process.env.REACT_APP_API_MASTER_KEY}` })
@@ -270,6 +273,7 @@ const App = () => {
       const base = process.env.REACT_APP_API_BASE_URL;
       const save = process.env.REACT_APP_API_SAVE_PATH;
 
+      console.log(`Trying to reach the backend at ${base}`);
       const response = await fetch(`${base}${save}`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -294,6 +298,7 @@ const App = () => {
       const base = process.env.REACT_APP_API_BASE_URL;
       const load = process.env.REACT_APP_API_LOAD_PATH;
 
+      console.log(`Trying to reach the backend at ${base}`);
       const response = await fetch(`${base}${load}`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -337,6 +342,7 @@ const App = () => {
       const base = process.env.REACT_APP_API_BASE_URL;
       const deleteDB = process.env.REACT_APP_API_DELETE_CHAT_PATH;
 
+      console.log(`Trying to reach the backend at ${base}`);
       const response = await fetch(`${base}${deleteDB}`, {
 
         method: 'POST',
