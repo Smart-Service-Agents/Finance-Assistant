@@ -135,8 +135,11 @@ const App = () => {
   };
 
   const processBotResponse = async (inputText, chatIndex) => {
+    const base = process.env.REACT_APP_API_BASE_URL;
+    const message = process.env.REACT_APP_API_MESSAGES_PATH;
+    
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/chatbot/messages/', {
+      const response = await fetch(`${base}${message}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: inputText }),
@@ -195,10 +198,13 @@ const App = () => {
   };
 
   const signup = async () => {
+    const base = process.env.REACT_APP_API_BASE_URL;
+    const signup = process.env.REACT_APP_API_SIGNUP_PATH;
+
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/chatbot/sign-up/', {
+      const response = await fetch(`${base}${signup}`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid: username, pass: password, key: 'rey-master-eo' })
+        body: JSON.stringify({ uid: username, pass: password, key: `${process.env.REACT_APP_API_MASTER_KEY}` })
       });
       const data = await response.json();
       if (response.ok) {
@@ -215,10 +221,13 @@ const App = () => {
   };
 
   const login = async () => {
+    const base = process.env.REACT_APP_API_BASE_URL;
+    const login = process.env.REACT_APP_API_LOGIN_PATH;
+
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/chatbot/login/', {
+      const response = await fetch(`${base}${login}`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid: username, pass: password, key: 'rey-master-eo' })
+        body: JSON.stringify({ uid: username, pass: password, key: `${process.env.REACT_APP_API_MASTER_KEY}` })
       });
       const data = await response.json();
       if (response.ok) {
@@ -256,7 +265,11 @@ const App = () => {
       const video = curr_messages[length - 2]['video'];
       const chat_id = curr_chat['title'];
 
-      const response = await fetch('http://127.0.0.1:8000/api/chatbot/save/', {
+
+      const base = process.env.REACT_APP_API_BASE_URL;
+      const save = process.env.REACT_APP_API_SAVE_PATH;
+
+      const response = await fetch(`${base}${save}`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
@@ -265,7 +278,7 @@ const App = () => {
           answer:answer,
           video:video,
           cid:chat_id,
-          key: 'rey-master-eo'
+          key: `${process.env.REACT_APP_API_MASTER_KEY}`
         })
       });
 
@@ -277,10 +290,13 @@ const App = () => {
 
   const loadMsgs = async (currUser) => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/chatbot/load/', {
+      const base = process.env.REACT_APP_API_BASE_URL;
+      const load = process.env.REACT_APP_API_LOAD_PATH;
+
+      const response = await fetch(`${base}${load}`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ uid: currUser, key: 'rey-master-eo' }),
+        body: JSON.stringify({ uid: currUser, key: `${process.env.REACT_APP_API_MASTER_KEY}` }),
       });
 
       if (!response.ok) {
@@ -317,10 +333,14 @@ const App = () => {
 
   const deleteChatDB = async (currUser, chatid) => {
     try{
-      const response = await fetch("http://127.0.0.1:8000/api/chatbot/delete-chat/", {
+      const base = process.env.REACT_APP_API_BASE_URL;
+      const deleteDB = process.env.REACT_APP_API_DELETE_CHAT_PATH;
+
+      const response = await fetch(`${base}${deleteDB}`, {
+
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ uid: currUser, chat: chatid, key: 'rey-master-eo'})
+        body: JSON.stringify({ uid: currUser, chat: chatid, key: `${process.env.REACT_APP_API_MASTER_KEY}`})
       });
 
       if (!response.ok) {
