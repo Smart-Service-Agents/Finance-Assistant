@@ -1,5 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button } from 'react-bootstrap';
 import './App.css';
@@ -158,9 +160,8 @@ const App = () => {
         const updated = [...prev];
         updated[chatIndex].messages.push({ from: 'bot', text: '', video: embedUrl, showVideo: false });
         return updated;
-      });
+      });      
 
-      
       await typeBotMessage(data.text, embedUrl);
     } catch (error) {
       console.error('Error fetching bot response:', error);
@@ -490,7 +491,8 @@ return (
                   maxWidth: '75%',
                 }}
               >
-                <div>{msg.text}</div>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text}</ReactMarkdown>
+
                 {msg.from === 'bot' && msg.showVideo && msg.video && (
                   <div className="mt-2">
                     <iframe
