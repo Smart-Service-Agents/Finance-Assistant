@@ -362,27 +362,21 @@ const App = () => {
 
 
 return (
-  <div
-    className="d-flex vh-100 flex-column"
-    style={{
-      backgroundColor: '#0b1a2b',
-      color: 'white',
-      overflow: 'hidden',
-    }}
-  >
-    {/* ───── Header ───── */}
+  <div className="d-flex flex-column vh-100" style={{ backgroundColor: '#0b1a2b', color: 'white' }}>
+    {/* Global Header */}
     <div
       style={{
-        flex: '0 0 6%',
+        height: '6%',
+        minHeight: '50px',
+        backgroundColor: '#0f172a',
         borderBottom: '1px solid #334155',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 1rem',
-        backgroundColor: '#0f172a',
+        padding: '0 1rem'
       }}
     >
-      <h5 className="text-white mb-0">Hotel FinanceGPT</h5>
+      <h5 className="mb-0">Hotel FinanceGPT</h5>
       {currentUser ? (
         <Button variant="outline-light" style={{ borderRadius: '20px', pointerEvents: 'none' }}>
           {currentUser}
@@ -394,17 +388,16 @@ return (
       )}
     </div>
 
-    {/* ───── Main area: sidebar + chat ───── */}
+    {/* Main Content */}
     <div className="d-flex flex-grow-1" style={{ overflow: 'hidden' }}>
       {/* Sidebar */}
       <div
         style={{
-          flex: '0 0 20%',
-          borderRight: '1px solid #334155',
+          width: '20%',
+          backgroundColor: '#0f172a',
           display: 'flex',
           flexDirection: 'column',
-          backgroundColor: '#0f172a',
-          overflow: 'hidden',
+          borderRight: '1px solid #334155'
         }}
       >
         <div className="px-3 py-2 text-center">
@@ -417,32 +410,25 @@ return (
             New Conversation
           </Button>
         </div>
-
-        <div style={{ flex: '1 1 auto', padding: '10px', overflowY: 'auto' }}>
+        <div style={{ flexGrow: 1, overflowY: 'auto', padding: '10px' }}>
           {chats.map((chat, idx) => (
             <div key={idx} className="position-relative mb-2">
               <Button
                 variant="dark"
-                className={`w-100 text-start text-white rounded ${activeChatIndex === idx ? 'border border-success' : ''}`}
+                className={`w-100 text-start text-white rounded ${
+                  activeChatIndex === idx ? 'border border-success' : ''
+                }`}
                 style={{ borderRadius: '10px', backgroundColor: 'transparent' }}
                 onClick={() => switchChat(idx)}
-                onMouseEnter={(e) => (e.currentTarget.style.border = '1px solid #475569')}
-                onMouseLeave={(e) => {
-                  if (activeChatIndex !== idx) {
-                    e.currentTarget.style.border = '1px solid transparent';
-                  }
-                }}
               >
                 {chat.title}
                 <span
                   className="position-absolute end-0 top-0 mt-1 me-1"
-                  style={{ cursor: 'pointer', padding: '2px 6px' }}
+                  style={{ cursor: 'pointer', padding: '2px 6px', color: 'white', borderRadius: '5px' }}
                   onClick={(e) => {
                     e.stopPropagation();
                     deleteChat(idx);
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = 'red')}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
                 >
                   &#x1F5D1;
                 </span>
@@ -450,36 +436,17 @@ return (
             </div>
           ))}
         </div>
-
-        <div style={{ flex: '0 0 5%', borderTop: '1px solid #334155' }} className="d-flex align-items-center px-2">
+        <div className="d-flex align-items-center px-2" style={{ height: '5%', borderTop: '1px solid #334155' }}>
           <small className="text-white">FinanceGPT v1.0</small>
         </div>
       </div>
 
-      {/* Chat area */}
-      <div
-        className="d-flex flex-column"
-        style={{
-          flex: '1 1 auto',
-          backgroundColor: '#0b1a2b',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Messages container: 70% width, centered, scrollable */}
-        <div
-          className="no-scrollbar"
-          style={{
-            width: '70%',
-            margin: '0 auto',
-            flex: '1 1 auto',
-            padding: '10px',
-            overflowY: 'auto',
-            overflowX: 'hidden',
-          }}
-        >
-          {messages.map((msg, idx) => (
+      {/* Chat Window */}
+      <div style={{ width: '80%' }} className="d-flex flex-column">
+        <div className="no-scrollbar flex-grow-1 px-3 py-2" style={{ overflowY: 'auto' }}>
+          {messages.map((msg, i) => (
             <div
-              key={idx}
+              key={i}
               className={`mb-2 d-flex ${msg.from === 'bot' ? 'justify-content-start' : 'justify-content-end'}`}
             >
               <div
@@ -488,10 +455,12 @@ return (
                   color: 'white',
                   padding: '10px',
                   borderRadius: '10px',
-                  maxWidth: '75%',
+                  maxWidth: '75%'
                 }}
               >
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.text}</ReactMarkdown>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {msg.text}
+                </ReactMarkdown>
 
                 {msg.from === 'bot' && msg.showVideo && msg.video && (
                   <div className="mt-2">
@@ -509,6 +478,7 @@ return (
               </div>
             </div>
           ))}
+
           {isTyping && (
             <div className="d-flex justify-content-start">
               <div
@@ -517,7 +487,7 @@ return (
                   color: 'white',
                   padding: '10px',
                   borderRadius: '10px',
-                  maxWidth: '75%',
+                  maxWidth: '75%'
                 }}
               >
                 Typing{typingDots}
@@ -526,25 +496,19 @@ return (
           )}
         </div>
 
-        {/* Input bar: centered 70%, input fills available space */}
-        <div
-          className="p-3 border-top d-flex justify-content-center"
-          style={{ backgroundColor: '#0f172a', flex: '0 0 auto' }}
-        >
-          <div style={{ width: '70%', display: 'flex' }}>
-            <input
-              type="text"
-              className="form-control me-2"
-              placeholder="Ask your finance coach..."
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-              style={{ flexGrow: 1 }}
-            />
-            <Button variant="success" onClick={sendMessage}>
-              Send
-            </Button>
-          </div>
+        {/* Input area */}
+        <div className="p-3 border-top d-flex" style={{ backgroundColor: '#0f172a' }}>
+          <input
+            type="text"
+            className="form-control me-2"
+            placeholder="Ask your finance coach..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+          />
+          <Button variant="success" onClick={sendMessage}>
+            Send
+          </Button>
         </div>
       </div>
     </div>
@@ -561,7 +525,7 @@ return (
                 className="btn-close btn-close-white"
                 onClick={() => setShowAuthModal(false)}
                 style={{ position: 'absolute', right: '1rem', top: '1rem' }}
-              />
+              ></button>
             </div>
             <div className="modal-body d-flex flex-column justify-content-start px-4" style={{ flexGrow: 1, paddingTop: '30px' }}>
               <input
@@ -593,6 +557,7 @@ return (
     )}
   </div>
 );
+
 
 };
 
