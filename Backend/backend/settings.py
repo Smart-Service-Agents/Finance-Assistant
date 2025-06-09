@@ -26,12 +26,13 @@ SECRET_KEY = os.getenv("django-fc-secretkey")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    # "https://finance-assistant-bot-kqga.onrender.com",
-    # "finance-assistant-bot-kqga.onrender.com",
-    os.getenv("django-host")
-]
-
+# ALLOWED_HOSTS = [
+#     # "https://finance-assistant-bot-kqga.onrender.com",
+#     # "finance-assistant-bot-kqga.onrender.com",
+#     '.elasticbeanstalk.com',
+#     os.getenv("django-host")
+# ]
+ALLOWED_HOSTS = ['.elasticbeanstalk.com', 'localhost', '127.0.0.1']
 
 # Application definition
 
@@ -139,6 +140,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
