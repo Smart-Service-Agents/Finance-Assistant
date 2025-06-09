@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import get_messages, upload_user, login_user, upload_data, retrieve_messages, delete_chat
+from .views import get_messages, upload_user, login_user, upload_data, retrieve_messages, delete_chat, update_chat_title
 
 urlpatterns = [
     path('messages/', get_messages),
@@ -8,4 +8,5 @@ urlpatterns = [
     path('save/', upload_data),
     path('load/', retrieve_messages),
     path('delete-chat/', delete_chat),
+    path('update-chat/', update_chat_title),
 ]

@@ -4,7 +4,8 @@ from rest_framework.decorators import api_view
 from .bot import FinanceCoach
 from .database import Database
 
-coach = FinanceCoach()
+import uuid
+
 db = Database()
 
 @api_view(['POST'])
@@ -12,6 +13,9 @@ def get_messages(request):
     """Handles chatbot message requests"""
     try:
         data = request.data
+        
+        coach = FinanceCoach()
+        
         question = data.get("text", "").strip()
 
         if not question:
@@ -62,9 +66,16 @@ def upload_data(request):
         answer = data.get("answer", "").strip()
         video = data.get("video", "").strip()
         chat = data.get("cid", "").strip()
+        chat_uid = data.get("chat_uid", "").strip()
         master = data.get("key")
 
-        response = db.upload_messages(user_id, question, answer, video, chat, master)
+        if (chat_uid == 'null'):
+            chat_uid = str(uuid.uuid4())
+            print('Set chat uid:', chat_uid)
+        else:
+            print('Chat uid already set:', chat_uid)
+
+        response = db.upload_messages(user_id, question, answer, video, chat, chat_uid, master)
         return Response(response)
     
     except Exception as e:
@@ -98,3 +109,19 @@ def delete_chat(request):
         return Response(response)
     except Exception as e:
         return Response({"error": str(e)}, status=500)
+    
+@api_view(['POST'])
+def update_chat_title(request):
+    """Updates chat name"""
+    try:
+        data = request.data
+        user_id = data.get('uid')
+        chat_uid = data.get('c_uid')
+        new_title = data.get('updated_title')
+        master = data.get('key')
+
+        response = db.update_chat_title(user_id, chat_uid, new_title, master)
+
+        return Response(response)
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)

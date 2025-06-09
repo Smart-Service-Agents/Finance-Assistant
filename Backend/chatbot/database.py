@@ -98,7 +98,7 @@ class Database:
         except Exception as e:
             return {'error': 'Error during login', 'details': str(e), 'status': 500}
 
-    def upload_messages(self, user, question, answer, video, chat_id, key) -> dict:
+    def upload_messages(self, user, question, answer, video, chat_id, chat_uid, key) -> dict:
         """
         Insert into questions table if API key valid.
         """
@@ -113,15 +113,13 @@ class Database:
                     cursor.execute(
                         """
                         INSERT INTO questions (
-                            user_id, question, answer, video, chat_id, created_at, modified_at
-                        ) VALUES (%s, %s, %s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-                        ON CONFLICT (question) DO UPDATE 
-                          SET answer = EXCLUDED.answer, modified_at = CURRENT_TIMESTAMP
+                            chat_id, chat_uid, user_id, question, answer, video, created_at, modified_at
+                        ) VALUES (%s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
                         """,
-                        (user, question, answer, video, chat_id)
+                        ( chat_id, chat_uid, user, question, answer, video)
                     )
             
-            return {'status': 200, 'message': 'Query uploaded successfully'}
+            return {'status': 200, 'message': 'Query uploaded successfully', 'chat_uid': chat_uid}
 
         except Exception as e:
             return {'error': 'Error uploading query', 'details': str(e), 'status': 500}
@@ -141,7 +139,7 @@ class Database:
                         """
                         DELETE 
                         FROM questions
-                        WHERE chat_id = %s AND user_id = %s
+                        WHERE chat_uid = %s AND user_id = %s
                         """,
                         (chat, user)
                     )
@@ -164,7 +162,7 @@ class Database:
                 with conn.cursor() as cursor:
                     cursor.execute(
                         """
-                        SELECT question, answer, video, chat_id 
+                        SELECT question, answer, video, chat_id, chat_uid
                         FROM questions 
                         WHERE user_id = %s 
                         ORDER BY created_at
@@ -174,10 +172,35 @@ class Database:
                     rows = cursor.fetchall()
             
             conversation = [
-                {'question': row[0], 'answer': row[1], 'video': row[2], 'chat_id': row[3]}
+                {'question': row[0], 'answer': row[1], 'video': row[2], 'chat_id': row[3], 'chat_uid': row[4]}
                 for row in rows
             ]
 
             return {'status': 200, 'conversations': conversation}
+        except Exception as e:
+            return {'error': str(e), 'status': 500}
+    
+    def update_chat_title(self, user: str, chat_uid: str, title: str, key: str):
+        """
+        Update the chat title of requested chat in database
+        """
+
+        auth = self.authenticate(key)
+        if auth['status'] != 200:
+            return auth
+        
+        try:
+            with self.get_db_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        """
+                        UPDATE questions
+                        SET chat_id = %s
+                        WHERE user_id = %s AND chat_uid = %s
+                        """,
+                        (title, user, chat_uid)
+                    )
+
+            return {'success': 'Updated name successfully', 'status': 200}
         except Exception as e:
             return {'error': str(e), 'status': 500}
