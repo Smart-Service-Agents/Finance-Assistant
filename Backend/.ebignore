@@ -6,3 +6,4 @@ testenv/
 *.pyc
 __pycache__/
 *.DS_Store
+cleanenv/
