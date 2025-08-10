@@ -2,4 +2,4 @@
 
 cd /d "%~dp0"
 
-start "" cmd /k "echo Wait for the Python server to start. && python manage.py runserver"
+start "" cmd /k "python manage.py runserver"
