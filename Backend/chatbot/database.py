@@ -115,8 +115,6 @@ class Database:
                         INSERT INTO questions (
                             user_id, question, answer, video, chat_id, chat_uid, created_at, modified_at
                         ) VALUES (%s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-                        ON CONFLICT (question) DO UPDATE 
-                          SET answer = EXCLUDED.answer, modified_at = CURRENT_TIMESTAMP
                         """,
                         (user, question, answer, video, chat_id, chat_uid)
                     )
