@@ -119,6 +119,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       updatedConversation.title = content.length > 25 ? content.substring(0, 25) + '...' : content;
     }
 
+    console.log("Sent user message");
+
     setCurrentConversation(updatedConversation);
     updateConversations(updatedConversation);
 
