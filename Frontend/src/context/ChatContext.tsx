@@ -98,7 +98,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const sendMessage = async (content: string) => {
-    if (!content.trim() || !currentConversation || !user?.username) return;
+    if (!content.trim() || !currentConversation) return;
 
     setLoading(true);
 
@@ -153,22 +153,24 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       updateConversations(finalConversation);
 
       // Save to DB
-      const response = await fetch(`${API_BASE}upload_chat/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user: user.username,
-          question: content,
-          answer: data.text,
-          video: data.video,
-          chat_id: updatedConversation.title,
-          chat_uid: updatedConversation.id,
-          key: API_KEY
-        })
-      });
+      if (user?.username){
+        const response = await fetch(`${API_BASE}upload_chat/`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user: user.username,
+            question: content,
+            answer: data.text,
+            video: data.video,
+            chat_id: updatedConversation.title,
+            chat_uid: updatedConversation.id,
+            key: API_KEY
+          })
+        });
 
-      const d = await response.json();
-      console.log(d);
+        const d = await response.json();
+        console.log(d);
+      }
 
     } catch (err) {
       console.error('Error sending message:', err);
