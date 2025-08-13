@@ -131,6 +131,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const data = await res.json();
 
+      console.log(data);
+
       const botMessage: Message = {
         id: uuidv4(),
         content: data.text || 'No response from server',
