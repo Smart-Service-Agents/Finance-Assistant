@@ -173,6 +173,23 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
     } catch (err) {
+      const botMessage: Message = {
+        id: uuidv4(),
+        content: 'No response from server',
+        video: "",
+        role: 'assistant',
+        timestamp: new Date()
+      };
+
+      const finalConversation = {
+        ...updatedConversation,
+        messages: [...updatedConversation.messages, botMessage],
+        updatedAt: new Date()
+      };
+
+      setCurrentConversation(finalConversation);
+      updateConversations(finalConversation);
+
       console.error('Error sending message:', err);
     } finally {
       setLoading(false);
