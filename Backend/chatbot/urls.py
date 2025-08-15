@@ -7,6 +7,6 @@ urlpatterns = [
     path('login/', login_user),
     path('upload_chat/', upload_data),
     path('load_chats/', retrieve_messages),
-    path('delete-chat/', delete_chat),
+    path('delete_chat/', delete_chat),
     # path('update-chat/', update_chat_title),
 ]

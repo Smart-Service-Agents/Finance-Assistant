@@ -50,6 +50,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const result = await response.json();
 
+      console.log(result);
+
       if (!response.ok) {
         return { success: false, error: result.error || 'Login failed' };
       }
@@ -80,6 +82,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const result = await response.json();
 
+      console.log(result);
 
       if (!response.ok) {
         return { success: false, error: result.error || 'Registration failed' };
